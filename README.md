@@ -15,11 +15,11 @@ languages:
 
 # Order processing workflow with Durable Functions (Python)
 
-[Durable Functions](https://learn.microsoft.com/azure/azure-functions/durable/durable-functions-overview)is part of [Azure Functions](https://learn.microsoft.com/azure/azure-functions/functions-overview) offering. Durable Functions helps you easily orchestrate stateful logic, making it an excellent solution for workflow scenarios, as well as stateful patterns like fan-out/fan-in and workloads that require long-running operations or need to wait arbitrarily long for external events. 
+[Durable Functions](https://learn.microsoft.com/azure/azure-functions/durable/durable-functions-overview) is part of [Azure Functions](https://learn.microsoft.com/azure/azure-functions/functions-overview) offering. Durable Functions helps you easily orchestrate stateful logic, making it an excellent solution for workflow scenarios, as well as stateful patterns like fan-out/fan-in and workloads that require long-running operations or need to wait arbitrarily long for external events. 
 
 This sample shows how to implement an order processing workflow with Durable Functions in Python 3.11. The sample leverages the [Azure Developer CLI (azd)](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd?tabs=winget-windows%2Cbrew-mac%2Cscript-linux&pivots=os-windows) and [Bicep](https://learn.microsoft.com/azure/azure-resource-manager/bicep/overview?tabs=bicep) to simplify the provisioning and deployment of all resources required by the app. 
 
-Durable Functions needs a ["storage backend provider"](https://learn.microsoft.com/azure/azure-functions/durable/durable-functions-storage-providers) to persist application states. This sample uses the default backend, which is Azure Storage.  
+Durable Functions needs a [storage backend provider](https://learn.microsoft.com/azure/azure-functions/durable/durable-functions-storage-providers) to persist application states. This sample uses the default backend, which is Azure Storage.  
 
 > [!IMPORTANT]
 > This sample creates several resources. Make sure to delete the resource group after testing to minimize charges!
@@ -36,14 +36,14 @@ The project is designed to run on your local computer, provided you have met the
 + [Python 3.11](https://www.python.org/downloads/) 
 + [Azure Functions Core Tools](https://learn.microsoft.com/azure/azure-functions/functions-run-local?tabs=v4%2Cmacos%2Ccsharp%2Cportal%2Cbash#install-the-azure-functions-core-tools)
 + Start Azurite storage emulator. See [this page](https://learn.microsoft.com/azure/storage/common/storage-use-azurite) for how to configure and start the Azurite emulator for Local Storage.
-+ Clone the repo, then create a file named `local.settings.json` with the following content in the **OrderProcessor** directory:
++ Clone the repo, then create a file named `local.settings.json` with the following content in the **order_processor** directory:
 
   ```json
   {
     "IsEncrypted": false,
     "Values": {
       "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-      "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated"
+      "FUNCTIONS_WORKER_RUNTIME": "python"
     }
   }
   ```
@@ -51,10 +51,10 @@ The project is designed to run on your local computer, provided you have met the
 ### Using Azure Functions Core Tools (CLI)
 Make sure Azurite is started before proceeding.
 
-1) Open a new terminal and do the following:
+1) Open the cloned repo in a new terminal and do the following:
 
 ```bash
-cd order-processor
+cd order_processor
 func start
 ```
 
@@ -74,7 +74,7 @@ func start
 
 ```json
 {
-    "name": "OrderProcessingOrchestration",
+    "name": "process_orchestrator",
     "instanceId": "e838bdb52db24560a6b30c261ac2985d",
     "runtimeStatus": "Completed",
     "input": {
@@ -101,7 +101,7 @@ func start
 
 ## Provision the solution on Azure
 
-In the root folder (durable-functions-order-processing-python) use the [Azure Developer CLI (azd)](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd?tabs=winget-windows%2Cbrew-mac%2Cscript-linux&pivots=os-windows) to provision a new resource group with the environment name you provide and all the resources for the sample by running:
+In the root folder (**durable-functions-order-processing-python**) use the [Azure Developer CLI (azd)](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd?tabs=winget-windows%2Cbrew-mac%2Cscript-linux&pivots=os-windows) to provision a new resource group with the environment name you provide and all the resources for the sample by running:
 
 ```bash
 azd up
@@ -109,12 +109,12 @@ azd up
 
 ## Inspect the solution (optional)
 
-Once the deployment is done, inspect the new resource group. The Flex Consumption function app and plan, storage, App Insights, and networking related resources have been created and configured:
-![Screenshot of resources created by the bicept template](./img/resources-created.png)
+Once the deployment is done, inspect the new resource group. The Durable Functions app, Flex Consumption hosting plan, Azure Storage account, App Insights, managed identity, and various networking related resources have been created and configured:
+![Screenshot of resources created by the bicep template](./img/resources-created.png)
 
-Because Durable Functions requires access to Azure Storage Blob, Table, and Queue, the associated networking resources such as private endpoints, link, etc. are created for each of those. 
+Because Durable Functions requires access to Azure Storage Blob, Table, and Queue, the associated networking resources such as private endpoints, link, etc. are created for each of those. The managed identity assigned to the app is also given the [required role-based access control (RBAC) permissions](https://learn.microsoft.com/azure/azure-functions/durable/durable-functions-configure-managed-identity#assign-access-roles-to-the-managed-identity).
 
-Following guidance for [hosting Durable Functions apps in the Flex Consumption plan](https://learn.microsoft.com/azure/azure-functions/durable/durable-functions-azure-storage-provider#flex-consumption-plan), this sample has set the plan's *always ready* instance to 1 and the property `maxQueuePollingInterval` to 1 second. 
+Following guidance for [hosting Durable Functions apps in the Flex Consumption plan](https://learn.microsoft.com/azure/azure-functions/durable/durable-functions-azure-storage-provider#flex-consumption-plan), this sample sets the plan's *always ready* instance to 1 and the property `maxQueuePollingInterval` to 1 second. 
 
 ## Test the solution
 
