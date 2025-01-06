@@ -13,7 +13,7 @@ languages:
 ---
 -->
 
-# Order processing workflow with Durable Functions
+# Order processing workflow with Durable Functions (Python)
 
 [Durable Functions](https://learn.microsoft.com/azure/azure-functions/durable/durable-functions-overview)is part of [Azure Functions](https://learn.microsoft.com/azure/azure-functions/functions-overview) offering. Durable Functions helps you easily orchestrate stateful logic, making it an excellent solution for workflow scenarios, as well as stateful patterns like fan-out/fan-in and workloads that require long-running operations or need to wait arbitrarily long for external events. 
 
