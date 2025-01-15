@@ -6,7 +6,7 @@ from models import *
 
 myApp = df.DFApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
-@myApp.route(route="orchestrators/{functionName}")
+@myApp.route(route="orchestrators/process_orchestrator")
 @myApp.durable_client_input(client_name="client")
 async def http_start(req: func.HttpRequest, client):    
     # Request an order
@@ -15,8 +15,7 @@ async def http_start(req: func.HttpRequest, client):
         total_cost=5, 
         quantity=1
     )  
-    orchestrator_name = req.route_params['functionName']
-    instance_id = await client.start_new(orchestrator_name, client_input=order_payload)
+    instance_id = await client.start_new("process_orchestrator", client_input=order_payload)
     
     logging.info(f"Started orchestration with ID = '{instance_id}'.")
 
@@ -39,14 +38,14 @@ def process_orchestrator(context: df.DurableOrchestrationContext):
         quantity=order_payload.quantity
     )
     
-    inventory_result: InventoryResult = yield context.call_activity_with_retry("reserve_inventory", retry_options, inventory_request)   
+    inventory_result = yield context.call_activity_with_retry("reserve_inventory", retry_options, inventory_request)   
     
     # There's not enough inventory, so fail and notify the customer
-    if not inventory_result.success:
-        notification = Notification(f"Insufficient inventory for {order_payload.order_name}.")
+    if not inventory_result['success']:
+        notification = Notification(f"Insufficient inventory for {inventory_request.item_name}.")
         yield context.call_activity("notify_customer", notification)
         context.set_custom_status("Insufficient inventory.")
-        return OrderResult(processed=False).to_json() # Need to call to_json(), otherwise will error "object is not JSON serializable"
+        return {'success': False} 
         
     # There is enough inventory, so process the payment 
     payment_request = PaymentRequest(
@@ -62,33 +61,27 @@ def process_orchestrator(context: df.DurableOrchestrationContext):
         yield context.call_activity_with_retry("update_inventory", retry_options, inventory_request)
     except Exception as e:
         logging.error(f"Error updating inventory: {e}")
-        notification = Notification(f"Failed to process order for {order_payload.order_name}. You're now getting a refund.")
+        notification = Notification(f"Failed to process order for {inventory_request.item_name}. You're now getting a refund.")
         yield context.call_activity("notify_customer", notification)
         context.set_custom_status("Failed to update inventory.")
-        return OrderResult(processed=False).to_json()
+        return {'success': False}
     
     # Order placed successfully. Notify customer.
     notification = Notification(f"Order for {order_payload.order_name} placed successfully!")
     yield context.call_activity("notify_customer", notification)
     context.set_custom_status("Order placed successfully.")
 
-    return OrderResult(processed=True).to_json()
+    return {'success': True}
 
 @myApp.activity_trigger(input_name="req")
 def reserve_inventory(req: InventoryRequest):
     logging.info(f"Reserving inventory for order {req.request_id} of quantity {req.quantity} {req.item_name}.")
     
     # In a real app, this would be a call to a database or external service to check inventory
-    # For simplicity, we'll just return a successful result with a dummy OrderPayload
+    # For simplicity, we'll just return a successful result 
     sleep(5) # Dummy delay to simulate database call
-            
-    order_response = OrderPayload(
-        order_name=req.item_name, 
-        total_cost=5, 
-        quantity=req.quantity
-    )
     
-    return InventoryResult(True, order_response)
+    return {'success': True}
 
 @myApp.activity_trigger(input_name="req")
 def update_inventory(req: InventoryRequest):
@@ -100,8 +93,8 @@ def update_inventory(req: InventoryRequest):
         
     logging.info(f"Inventory updated for {req.item_name}. Current quantity: 100.")
     
-    # Activity functions must return a value today
-    return "Inventory updated."
+    # Activity functions must have a return value today
+    return "Updated inventory."
 
 @myApp.activity_trigger(input_name="notification")
 def notify_customer(notification: Notification):
@@ -110,7 +103,7 @@ def notify_customer(notification: Notification):
     # Simulate notification
     sleep(2) 
     
-    # Activity functions must return a value today
+    # Activity functions must have a return value today
     return "Notified customer."
 
 @myApp.activity_trigger(input_name="req")
@@ -122,6 +115,6 @@ def process_payment(req: PaymentRequest):
 
     logging.info(f"Payment request {req.request_id} processed successfully.")
     
-    # Activity functions must return a value today
-    return "Payment processed."
+    # Activity functions must have a return value today
+    return "Processed payment."
 

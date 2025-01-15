@@ -51,14 +51,30 @@ The project is designed to run on your local computer, provided you have met the
 ### Using Azure Functions Core Tools (CLI)
 Make sure Azurite is started before proceeding.
 
-1) Open the cloned repo in a new terminal and do the following:
-
+1. Open the cloned repo in a new terminal and navigate to the `order_processor` directory: 
 ```bash
 cd order_processor
+```
+
+1. Create and activate the virtual environment:
+```bash
+python3 -m venv venv_name
+```
+```bash
+source .venv/bin/activate
+```
+
+1. Install required packages:
+```bash
+python3 -m pip install -r requirements.txt
+```
+
+1. Start function app 
+```bash
 func start
 ```
 
-2) This sample uses an HTTP trigger to start an orchestration, so open a browser and go to http://localhost:7071/api/orchestrators/process_orchestrator. You should see something similar to the following: 
+1. This sample uses an HTTP trigger to start an orchestration, so open a browser and go to http://localhost:7071/api/orchestrators/process_orchestrator. You should see something similar to the following: 
 
 ```json
 {
@@ -70,24 +86,20 @@ func start
 }
 ```
 
-3) To check the status of the orchestration instance started, go to the `statusQueryGetUri`. Your orchestration instance should show status "Running". After a few seconds, refresh to see that the orchestration instance is "Completed" and what the output is.
+1. To check the status of the orchestration instance started, go to the `statusQueryGetUri`. Your orchestration instance should show status "Running". After a few seconds, refresh to see that the orchestration instance is "Completed" and what the output is.
 
 ```json
 {
     "name": "process_orchestrator",
-    "instanceId": "e838bdb52db24560a6b30c261ac2985d",
+    "instanceId": "5ddc571338594942a5051903e4a50656",
     "runtimeStatus": "Completed",
-    "input": {
-        "Name": "milk",
-        "TotalCost": 5,
-        "Quantity": 1
-    },
+    "input": "{\"__class__\": \"OrderPayload\", \"__module__\": \"models\", \"__data__\": \"{\\\"order_name\\\": \\\"milk\\\", \\\"total_cost\\\": 5, \\\"quantity\\\": 1}\"}",
     "customStatus": "Order placed successfully.",
     "output": {
-        "Processed": true
+        "success": true
     },
-    "createdTime": "2024-09-12T00:29:07Z",
-    "lastUpdatedTime": "2024-09-12T00:29:31Z"
+    "createdTime": "2025-01-15T01:41:18Z",
+    "lastUpdatedTime": "2025-01-15T01:41:39Z"
 }
 ```
 
@@ -95,8 +107,9 @@ func start
 
 1) Open the *order_processor* folder in a new terminal
 2) Open VS Code by entering `code .` in the terminal
-3) Press Run/Debug (F5) to run in the debugger
-4) Use same approach above to start an orchestration instance and check its status. 
+3) Start Azurite by opening the command template and searching for `Azurite: Start`
+4) Press Run/Debug (F5) to run in the debugger
+5) Use same approach above to start an orchestration instance and check its status. 
 
 
 ## Provision the solution on Azure
