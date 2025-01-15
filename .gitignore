@@ -54,6 +54,11 @@ nunit-*.xml
 [Rr]eleasePS/
 dlldata.c
 
+# DNX
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
 # Benchmark Results
 BenchmarkDotNet.Artifacts/
 
@@ -395,4 +400,5 @@ FodyWeavers.xsd
 *.msp
 
 # JetBrains Rider
+.idea/
 *.sln.iml

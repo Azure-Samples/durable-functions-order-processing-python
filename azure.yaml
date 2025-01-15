@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: df-orderprocessor-python-flex
+metadata:
+  template: df-orderprocessor-python-flex@0.0.1-beta
+services:
+  processor:
+    project: ./order_processor/
+    language: python
+    host: function
