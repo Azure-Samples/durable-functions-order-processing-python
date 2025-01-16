@@ -56,7 +56,7 @@ Make sure Azurite is started before proceeding.
 cd order_processor
 ```
 
-1. Create and activate the virtual environment:
+2. Create and activate the virtual environment:
 ```bash
 python3 -m venv venv_name
 ```
@@ -64,17 +64,17 @@ python3 -m venv venv_name
 source .venv/bin/activate
 ```
 
-1. Install required packages:
+3. Install required packages:
 ```bash
 python3 -m pip install -r requirements.txt
 ```
 
-1. Start function app 
+4. Start function app 
 ```bash
 func start
 ```
 
-1. This sample uses an HTTP trigger to start an orchestration, so open a browser and go to http://localhost:7071/api/orchestrators/process_orchestrator. You should see something similar to the following: 
+5. This sample uses an HTTP trigger to start an orchestration, so open a browser and go to http://localhost:7071/api/orchestrators/process_orchestrator. You should see something similar to the following: 
 
 ```json
 {
@@ -86,7 +86,7 @@ func start
 }
 ```
 
-1. To check the status of the orchestration instance started, go to the `statusQueryGetUri`. Your orchestration instance should show status "Running". After a few seconds, refresh to see that the orchestration instance is "Completed" and what the output is.
+6. To check the status of the orchestration instance started, go to the `statusQueryGetUri`. Your orchestration instance should show status "Running". After a few seconds, refresh to see that the orchestration instance is "Completed" and what the output is.
 
 ```json
 {
