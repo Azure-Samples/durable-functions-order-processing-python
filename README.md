@@ -122,8 +122,7 @@ azd up
 
 ## Inspect the solution (optional)
 
-Once the deployment is done, inspect the new resource group. The Durable Functions app, Flex Consumption hosting plan, Azure Storage account, App Insights, managed identity, and various networking related resources have been created and configured:
-![Screenshot of resources created by the bicep template](./img/resources-created.png)
+Once the deployment is done, inspect the new resource group. The Durable Functions app, Flex Consumption hosting plan, Azure Storage account, App Insights, managed identity, and various networking related resources have been created and configured.
 
 Because Durable Functions requires access to Azure Storage Blob, Table, and Queue, the associated networking resources such as private endpoints, link, etc. are created for each of those. The managed identity assigned to the app is also given the [required role-based access control (RBAC) permissions](https://learn.microsoft.com/azure/azure-functions/durable/durable-functions-configure-managed-identity#assign-access-roles-to-the-managed-identity).
 
