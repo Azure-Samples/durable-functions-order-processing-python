@@ -113,9 +113,12 @@ func start
 
 
 ## Provision the solution on Azure
+1. Login to your Azure account.
+```bash
+azd auth login
+```
 
-In the root folder (**durable-functions-order-processing-python**) use the [Azure Developer CLI (azd)](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd?tabs=winget-windows%2Cbrew-mac%2Cscript-linux&pivots=os-windows) to provision a new resource group with the environment name you provide and all the resources for the sample by running:
-
+2, In the root folder (**durable-functions-order-processing-python**) use the [Azure Developer CLI (azd)](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd?tabs=winget-windows%2Cbrew-mac%2Cscript-linux&pivots=os-windows) to provision a new resource group with the environment name you provide and all the resources for the sample by running:
 ```bash
 azd up
 ``` 
