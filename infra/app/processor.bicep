@@ -13,8 +13,16 @@ param instanceMemoryMB int = 2048
 param maximumInstanceCount int = 100
 param identityId string = ''
 param identityClientId string = ''
+param dtsURL string = ''
+param taskHubName string = ''
 
 var applicationInsightsIdentity = 'ClientId=${identityClientId};Authorization=AAD'
+
+// Durable Task Scheduler settings
+var dtsSettings = !empty(dtsURL) ? {
+  DURABLE_TASK_SCHEDULER_CONNECTION_STRING: 'Endpoint=${dtsURL};Authentication=ManagedIdentity;ClientID=${identityClientId}'
+  TASKHUB_NAME: taskHubName
+} : {}
 
 module processor '../core/host/functions-flexconsumption.bicep' = {
   name: '${serviceName}-functions-module'
@@ -28,7 +36,8 @@ module processor '../core/host/functions-flexconsumption.bicep' = {
       {
         AzureWebJobsStorage__clientId : identityClientId
         APPLICATIONINSIGHTS_AUTHENTICATION_STRING: applicationInsightsIdentity
-      })
+      },
+      dtsSettings)
     applicationInsightsName: applicationInsightsName
     appServicePlanId: appServicePlanId
     runtimeName: runtimeName

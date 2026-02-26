@@ -24,10 +24,19 @@ param resourceGroupName string = ''
 param storageAccountName string = ''
 param vNetName string = ''
 param disableLocalAuth bool = true
+param dtsName string = ''
+param taskHubName string = ''
+param dtsLocation string = location
+param dtsSkuName string = 'Consumption'
+param dtsCapacity int = 1
+@description('Id of the user identity to be used for testing and debugging. This is not required in production. Leave empty if not needed.')
+param principalId string = deployer().objectId
 
 var abbrs = loadJsonContent('./abbreviations.json')
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
 var tags = { 'azd-env-name': environmentName }
+var dtsResourceName = !empty(dtsName) ? dtsName : '${abbrs.durableTaskSchedulers}${resourceToken}'
+var taskHubResourceName = !empty(taskHubName) ? taskHubName : '${abbrs.durableTaskHubs}${resourceToken}'
 
 // Organize resources in a resource group
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
@@ -65,6 +74,8 @@ module processor './app/processor.bicep' = {
     appSettings: {
     }
     virtualNetworkSubnetId: serviceVirtualNetwork.outputs.appSubnetID
+    dtsURL: dts.outputs.dts_URL
+    taskHubName: dts.outputs.TASKHUB_NAME
   }
 }
 
@@ -188,6 +199,50 @@ module appInsightsRoleAssignmentApi './core/monitor/appinsights-access.bicep' = 
     appInsightsName: monitoring.outputs.applicationInsightsName
     roleDefinitionID: monitoringRoleDefinitionId
     principalID: processorUserAssignedIdentity.outputs.identityPrincipalId
+  }
+}
+
+// Durable Task Scheduler
+module dts './app/dts.bicep' = {
+  scope: rg
+  name: 'dtsResource'
+  params: {
+    name: dtsResourceName
+    taskhubname: taskHubResourceName
+    location: dtsLocation
+    tags: tags
+    ipAllowlist: [
+      '0.0.0.0/0'
+    ]
+    skuName: dtsSkuName
+    skuCapacity: dtsCapacity
+  }
+}
+
+// Durable Task Data Contributor role ID
+var dtsRoleDefinitionId = '0ad04412-c4d5-4796-b79c-f76d14c8d402'
+
+// Allow access from function app to DTS using user assigned managed identity
+module dtsRoleAssignment 'app/dts-Access.bicep' = {
+  name: 'dtsRoleAssignment'
+  scope: rg
+  params: {
+    roleDefinitionID: dtsRoleDefinitionId
+    principalID: processorUserAssignedIdentity.outputs.identityPrincipalId
+    principalType: 'ServicePrincipal'
+    dtsName: dts.outputs.dts_NAME
+  }
+}
+
+// Allow the deployer identity to access the DTS dashboard
+module dtsDashboardRoleAssignment 'app/dts-Access.bicep' = {
+  name: 'dtsDashboardRoleAssignment'
+  scope: rg
+  params: {
+    roleDefinitionID: dtsRoleDefinitionId
+    principalID: principalId
+    principalType: 'User'
+    dtsName: dts.outputs.dts_NAME
   }
 }
 
