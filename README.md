@@ -58,15 +58,20 @@ cd order_processor
 
 2. Create and activate the virtual environment:
 ```bash
-python3 -m venv venv_name
+python3 -m venv .venv
 ```
 ```bash
 source .venv/bin/activate
 ```
 
+On Windows, use `py -m venv .venv`, then activate it with
+`.\.venv\Scripts\Activate.ps1` in PowerShell or `.venv\Scripts\activate.bat` in
+Command Prompt. The environment belongs in `order_processor/.venv`, not the
+repository root.
+
 3. Install required packages:
 ```bash
-python3 -m pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 4. Start function app 
@@ -107,6 +112,11 @@ func start
 
 1) Open the *order_processor* folder in a new terminal
 2) Open VS Code by entering `code .` in the terminal
+   Create and install dependencies in `order_processor/.venv` using the CLI steps
+   above, then run **Python: Select Interpreter** and select that environment.
+   If prompted to initialize the project for VS Code, select the `order_processor`
+   app and `.venv`. A successful import in a manually activated terminal does not
+   confirm that the Functions debug task uses the same environment.
 3) Start Azurite by opening the command template and searching for `Azurite: Start`
 4) Press Run/Debug (F5) to run in the debugger
 5) Use same approach above to start an orchestration instance and check its status. 
