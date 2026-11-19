@@ -1,0 +1,10 @@
+# This descriptor drives template package creation in the packaging pipeline.
+schemaVersion: 1
+identity: Azure.Functions.Templates.DurableOrderProcessingPython
+description: Create a Python Azure Functions app for Durable Functions Order Processing, with deployment files for azd.
+projects:
+- name: Azure Functions Durable Functions Order Processing (Python)
+  shortName: durable-order-processor-python
+  root: .
+  stack: python
+  language: Python
